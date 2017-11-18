@@ -4,15 +4,17 @@ import re
 def mapper(key, value): 
     matches = re.findall(r'#\w+', value["text"], flags=0)
 
+    # Build hashtags dictionary
     hashtag_dict = {}
-    for match in matches:
-        hashtag = match
-        if hashtag not in hashtag_dict:
-            hashtag_dict[hashtag] = 1
+    for m in matches:
+        if m not in hashtag_dict:
+            hashtag_dict[m] = 1
         else:
-            hashtag_dict[hashtag] += 1
-    for hashtag in hashtag_dict:
-        mr.emit_intermediate(hashtag, hashtag_dict[hashtag])
+            hashtag_dict[m] += 1
+
+    # Emit result
+    for m in hashtag_dict:
+        mr.emit_intermediate(m, hashtag_dict[m])
 
 def reducer(key, list_of_values):
     total_count = sum(list_of_values)
