@@ -1,25 +1,32 @@
 import MapReduce
 
-# The main challenge is to partition the data in the map.
-#
-# The naive approach is to send all data into a single
-# Reducer like 'mr.emit_intermeidate(0, integer)'. However,
-# this does not take advantage of the parallelism that
-# MapReduce gives us.
-#
-# Another naive approach is to let the Shuffler take
-# care of the sorting by emitting each integer as key:
-# mr.emit_intermeidate(integer, 0). This is not very 
-# efficient either.
-#
-# In order to get nice complexity numbers and to make my
-# job easier, I would like to make two assumptions ;)
-# I know that the input consists of integers between 
-# one and 1 million. First assumption is that these
-# integers were drawn from a uniform distribtion.
-# Second assumption is that we have access to 20 chuck
-# servers (integers.json contains 20 lines). These
-# give me a nice property: approx. same-sized buckets:
+"""
+Author: Omar Ali Sheikh-Omar (s1962523)
+
+The main challenge is to partition the data in mapper.
+
+The naive approach is to send all data into a single
+Reducer like 'mr.emit_intermeidate(0, integer)'. However,
+this does not take advantage of the parallelism that
+MapReduce gives us.
+
+Another naive approach is to let the Shuffler take
+care of the sorting by emitting each integer as key:
+mr.emit_intermeidate(integer, 0). This is not very
+efficient either.
+
+In order to get nice complexity numbers and to make my
+job easier, I would like to make two assumptions ;)
+I know that the input consists of integers between
+one and 1 million. So first assumption is that these
+integers were drawn from a uniform distribution. This
+gives me a nice property; the ability to create
+more or less equal-sized buckets of integers.
+Second assumption is that we have access to 20 chuck
+servers (integers.json contains 20 lines).
+
+Using these assumptions the solution is straightforward.
+"""
 
 REDUCER_SIZE = 20
 BUCKET_SIZE = 10**6 / REDUCER_SIZE

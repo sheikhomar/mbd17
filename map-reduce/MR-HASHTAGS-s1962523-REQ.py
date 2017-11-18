@@ -1,6 +1,10 @@
 import MapReduce
 import re
 
+"""
+Author: Omar Ali Sheikh-Omar (s1962523)
+"""
+
 def mapper(key, value): 
     matches = re.findall(r'#\w+', value["text"], flags=0)
 

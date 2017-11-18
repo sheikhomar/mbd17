@@ -1,5 +1,9 @@
 import MapReduce
 
+"""
+Author: Omar Ali Sheikh-Omar (s1962523)
+"""
+
 def mapper(key, value): 
     mr.emit_intermediate('key', max(value))
 
