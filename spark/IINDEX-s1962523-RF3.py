@@ -1,25 +1,32 @@
-import MapReduce
-
 """
 Author: Omar Ali Sheikh-Omar (s1962523)
 """
 
 from pyspark import SparkContext
+import re
+
+FILE_SEPARATOR = ':'
+number_of_files = 14
 
 sc = SparkContext("local", "Inverted Index")
 sc.setLogLevel("ERROR")
 
-def to_word_file_tuple(filePath, fileContent):
-    words = fileContent.lower().split()
-    fileName = filePath[filePath.rfind('/')+1:]
-    return map(lambda word: (word, fileName), words)
+"""
+Creates a list of tuples in the form (word, file_name)
+"""
+def tokenise(input_tuple):
+    file_path = input_tuple[0]
+    file_content = input_tuple[1]
+    sanitised_text = re.sub('[,\.\[\]]', '', file_content.lower())
+    words = sanitised_text.split()
+    file_name = file_path[file_path.rfind('/')+1:]
+    return map(lambda word: (word, file_name), words)
 
-def pretty_print(list_of_tuples):
-    for tup in list_of_tuples:
-        print(u'Key: {} Value: {}'.format(tup[0], tup[1]))
-
-
-path = "/data/doina/Gutenberg-EBooks"
+path = '/data/doina/Gutenberg-EBooks'
 rdd = sc.wholeTextFiles(path)
-rdd2 = rdd.flatMap(to_word_file_tuple)
-pretty_print(rdd2.take(20))
+rdd = rdd.flatMap(tokenise)
+rdd = rdd.reduceByKey(lambda names, file_name: names + FILE_SEPARATOR + file_name if names.find(file_name) == -1 else names)
+rdd = rdd.filter(lambda tup: tup[1].count(FILE_SEPARATOR) == number_of_files - 1)
+rdd = rdd.map(lambda tup: tup[0])
+arr = sorted(rdd.collect())
+print(' '.join(arr))
